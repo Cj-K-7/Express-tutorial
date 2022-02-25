@@ -1,62 +1,21 @@
-const http = require("http");
+const express = require("express");
 const path = require("path");
-const fs = require("fs");
+const logger = require("./middleware/logger");
 
-const server = http.createServer((req, res) => {
-  // Build file path
-  const filePath = path.join(
-    __dirname,
-    "public",
-    req.url === "/" ? "index.html" : req.url
-  );
-    console.log(req.url);
-  // Extention of file
-  const extname = path.extname(filePath);
+const app = express();
 
-  // Initail content type
-  let contentType = "text/html";
-  switch (extname) {
-    case ".js":
-      contentType = "text/javascript";
-      break;
-    case ".css":
-      contentType = "text/css";
-      break;
-    case ".json":
-      contentType = "application/json";
-      break;
-    case ".png":
-      contentType = "image/png";
-      break;
-    case ".jpg":
-      contentType = "image/jpg";
-      break;
-  }
+//Init middleware
+//app.use(logger);
 
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      if (err.code == "ENOENT") {
-        //Page not found
-        fs.readFile(
-          path.join(__dirname, "public", "404.html"),
-          (err, content) => {
-            res.writeHead(200, { "Content-Type": contentType });
-            res.end(content, "utf8");
-          }
-        );
-      } else {
-        // Some server erro
-        res.writeHead(500);
-        res.end("Server Error" + err.code);
-      }
-    } else {
-      //Success
-      res.writeHead(200, { "Content-Type": contentType });
-      res.end(content, "utf8");
-    }
-  });
-});
+app.use
+//Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({extended : false}))
+//Set static folder
+app.use(express.static(path.join(__dirname, "public")));
+
+//Members API route
+app.use("/api/members", require("./routes/api/members"));
 
 const PORT = process.env.PORT || 3030;
-
-server.listen(PORT, () => console.log(`Server running on PORT : ${PORT}`));
+app.listen(PORT, () => console.log(`Runnung on port : ${PORT}`));
